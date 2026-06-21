@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>星辰 Star Sky | 在路上</title>
+  <style>
+    :root {
+      --bg: #f7f3ec;
+      --bg-elevated: #fbf8f3;
+      --surface: rgba(255, 253, 248, 0.86);
+      --surface-hover: rgba(255, 253, 248, 0.95);
+      --border: rgba(88, 72, 48, 0.12);
+      --text: #2d2a26;
+      --text-muted: #6b655d;
+      --accent: #a67c00;
+      --accent-soft: rgba(166, 124, 0, 0.12);
+      --radius: 24px;
+      --shadow: rgba(60, 45, 25, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Noto Serif SC", Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+
+    /* Navigation - centered */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.4s ease;
+    }
+
+    .nav.visible {
+      opacity: 1;
+      transform: translateY(0);
+      background: rgba(247, 243, 236, 0.82);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logo {
+      position: absolute;
+      left: 24px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+
+    .logo span {
+      color: var(--accent);
+      font-family: "Playfair Display", Georgia, serif;
+      font-style: italic;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 48px;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      transition: color 0.25s ease;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 0;
+      height: 1.5px;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero full screen with background */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 100px;
+      background: url('images/hero-bg.png') center/cover no-repeat;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(20, 18, 30, 0.45) 0%,
+        rgba(20, 18, 30, 0.2) 40%,
+        rgba(20, 18, 30, 0.35) 70%,
+        rgba(247, 243, 236, 0.98) 100%
+      );
+      z-index: -1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+    }
+
+    .hero h1 {
+      font-size: clamp(56px, 12vw, 120px);
+      font-weight: 600;
+      line-height: 1;
+      margin-bottom: 20px;
+      letter-spacing: -0.03em;
+      color: #fffaf0;
+      text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero h1 .en {
+      display: block;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 0.5em;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0.12em;
+      color: #f5d78e;
+      margin-top: 12px;
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2vw, 20px);
+      color: rgba(255, 250, 240, 0.82);
+      max-width: 520px;
+      margin: 0 auto 40px;
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 250, 240, 0.7);
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      animation: bounce 2s infinite;
+      z-index: 1;
+    }
+
+    .scroll-hint svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-10px); }
+      60% { transform: translateX(-50%) translateY(-5px); }
+    }
+
+    /* Section transitions - full screen sections */
+    .section {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 100px 24px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .section-content {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      margin-bottom: 64px;
+      text-align: center;
+    }
+
+    .section-label {
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 18px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* Split cards */
+    .split-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 32px var(--shadow);
+      margin-bottom: 32px;
+    }
+
+    .split-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .split-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(166, 124, 0, 0.22);
+      box-shadow: 0 24px 56px rgba(60, 45, 25, 0.1);
+      background: var(--surface-hover);
+    }
+
+    .split-card-image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(60, 45, 25, 0.12);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .split-card:hover .split-card-image {
+      transform: scale(1.03);
+    }
+
+    .split-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .split-card:hover .split-card-image img {
+      transform: scale(1.08);
+    }
+
+    .split-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .split-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .split-card-meta::before {
+      content: "";
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .split-card-title {
+      font-size: clamp(26px, 3.5vw, 36px);
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .split-card-text {
+      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1.8;
+    }
+
+    .split-card-quote {
+      padding: 18px 24px;
+      background: rgba(166, 124, 0, 0.06);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      color: var(--accent);
+      font-size: 16px;
+      font-style: italic;
+      line-height: 1.7;
+    }
+
+    .split-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 8px;
+    }
+
+    .split-card-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.25s ease;
+    }
+
+    .split-card:hover .split-card-btn {
+      background: #8f6a00;
+      transform: translateX(4px);
+    }
+
+    .split-card-link {
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: color 0.25s ease;
+    }
+
+    .split-card:hover .split-card-link {
+      color: var(--accent);
+    }
+
+    /* Single item centered */
+    .single-card {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Alternating layout */
+    .split-card.reverse {
+      direction: rtl;
+    }
+
+    .split-card.reverse > * {
+      direction: ltr;
+    }
+
+    /* Grid for three items */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .item-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 24px var(--shadow);
+    }
+
+    .item-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(166, 124, 0, 0.22);
+      box-shadow: 0 24px 56px rgba(60, 45, 25, 0.1);
+      background: var(--surface-hover);
+    }
+
+    .item-card-image {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+    }
+
+    .item-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .item-card:hover .item-card-image img {
+      transform: scale(1.08);
+    }
+
+    .item-card-body {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .item-card-tag {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 5px 14px;
+      border-radius: 100px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .item-card-title {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .item-card-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.75;
+      flex: 1;
+    }
+
+    .item-card-arrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 8px;
+    }
+
+    .item-card-arrow svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.25s ease;
+    }
+
+    .item-card:hover .item-card-arrow svg {
+      transform: translateX(4px);
+    }
+
+    /* Footer / Contact */
+    .footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 100px 24px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-brand {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .footer-brand span {
+      color: var(--accent);
+      font-family: "Playfair Display", Georgia, serif;
+      font-style: italic;
+    }
+
+    .contact {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--text);
+      font-size: 16px;
+      margin-bottom: 40px;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .contact:hover {
+      border-color: rgba(166, 124, 0, 0.25);
+      background: var(--surface-hover);
+    }
+
+    .contact-label {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .contact-value {
+      color: var(--accent);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .footer-copy {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+
+    @media (max-width: 980px) {
+      .split-card {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 32px;
+      }
+
+      .split-card-image {
+        aspect-ratio: 16 / 10;
+      }
+
+      .split-card.reverse {
+        direction: ltr;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        gap: 28px;
+      }
+
+      .section {
+        padding: 80px 24px;
+        min-height: auto;
+      }
+
+      .logo {
+        position: static;
+        margin-right: auto;
+      }
+
+      .nav-inner {
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero {
+        padding: 100px 20px 80px;
+      }
+
+      .hero h1 .en {
+        font-size: 0.4em;
+      }
+
+      .section {
+        padding: 64px 20px;
+      }
+
+      .split-card {
+        padding: 24px;
+      }
+
+      .split-card-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        gap: 20px;
+      }
+
+      .nav-links a {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="logo" href="#">星辰 <span>Star Sky</span></a>
+      <div class="nav-links">
+        <a href="#ai">AI</a>
+        <a href="#service">服务</a>
+        <a href="#product">产品</a>
+        <a href="#about">关于我</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="hero">
+    <div class="hero-content">
+      <h1>
+        星辰
+        <span class="en">Star Sky</span>
+      </h1>
+      <p>这里汇集了 AI 探索、产品实践、服务沉淀与个人故事。</p>
+    </div>
+
+    <div class="scroll-hint">
+      <span>向下滚动</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M19 12l-7 7-7-7"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- AI Section -->
+  <section class="section section-ai" id="ai">
+    <div class="section-content">
+      <div class="section-header fade-in">
+        <div class="section-label">Artificial Intelligence</div>
+        <h2 class="section-title">AI</h2>
+        <p class="section-desc">AI 工具、教程与自动化实践，探索如何用人工智能放大个人生产力。</p>
+      </div>
+      <div class="cards-grid">
+        <a class="item-card fade-in stagger-1" href="Token中转站.html" target="_blank">
+          <div class="item-card-image">
+            <img src="images/ai-token.png" alt="Token 中转" loading="lazy">
+          </div>
+          <div class="item-card-body">
+            <span class="item-card-tag">Token 中转</span>
+            <h3 class="item-card-title">Claude Code 满血版额度服务</h3>
+            <p class="item-card-desc">额度永不过期，支持 Claude Code Sonnet / Opus 4.7，模型可联网搜索，随时可用。</p>
+            <div class="item-card-arrow">
+              查看详情
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </a>
+
+        <a class="item-card fade-in stagger-2" href="personal-website-guide.html" target="_blank">
+          <div class="item-card-image">
+            <img src="images/ai-website.png" alt="网页制作" loading="lazy">
+          </div>
+          <div class="item-card-body">
+            <span class="item-card-tag">网页制作</span>
+            <h3 class="item-card-title">用 AI + GitHub + Netlify 打造数字名片</h3>
+            <p class="item-card-desc">11 步图文教程，无需编程基础，从零开始部署完全属于自己的独立网站。</p>
+            <div class="item-card-arrow">
+              查看详情
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </a>
+
+        <a class="item-card fade-in stagger-3" href="公众号运营2.html" target="_blank">
+          <div class="item-card-image">
+            <img src="images/ai-wechat.png" alt="公众号" loading="lazy">
+          </div>
+          <div class="item-card-body">
+            <span class="item-card-tag">公众号</span>
+            <h3 class="item-card-title">用 AI 做自媒体实现全流程自动化</h3>
+            <p class="item-card-desc">从信息来源、知识管理、内容排版到自动发布，用 AI 搭建自媒体自动化工作流。</p>
+            <div class="item-card-arrow">
+              查看详情
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Service Section -->
+  <section class="section section-service" id="service">
+    <div class="section-content">
+      <div class="section-header fade-in">
+        <div class="section-label">Services</div>
+        <h2 class="section-title">服务</h2>
+        <p class="section-desc">为职场人提供的实用支持与法律常识，帮助你在关键时刻保护自己。</p>
+      </div>
+      <a class="split-card single-card fade-in stagger-1" href="职场n+1 3.html" target="_blank">
+        <div class="split-card-image">
+          <img src="images/service-workplace.png" alt="职场 n+1" loading="lazy">
+        </div>
+        <div class="split-card-body">
+          <div class="split-card-meta">职场 n+1</div>
+          <h3 class="split-card-title">公司想赶你走却不赔钱？</h3>
+          <p class="split-card-text">拆解公司常用手段、劳动法律知识、仲裁策略与现在就应该做的几件事。在劳动关系里，信息差就是最大的成本。</p>
+          <div class="split-card-quote">
+            “懂法不是为了对抗，而是让自己在谈判桌前多一分底气。”
+          </div>
+          <div class="split-card-actions">
+            <span class="split-card-btn">
+              查看详情
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+            <span class="split-card-link">劳动权益 · 仲裁指南</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Product Section -->
+  <section class="section section-product" id="product">
+    <div class="section-content">
+      <div class="section-header fade-in">
+        <div class="section-label">Products</div>
+        <h2 class="section-title">产品</h2>
+        <p class="section-desc">正在探索的产品与体验，从一杯酒开始的生活方式实验。</p>
+      </div>
+      <a class="split-card single-card reverse fade-in stagger-1" href="红酒葡野2.html" target="_blank">
+        <div class="split-card-image">
+          <img src="images/product-wine.png" alt="红酒葡野" loading="lazy">
+        </div>
+        <div class="split-card-body">
+          <div class="split-card-meta">品酒会</div>
+          <h3 class="split-card-title">红酒葡野</h3>
+          <p class="split-card-text">从一杯酒、到一群人、再到一份事业。葡萄酒品鉴与创业联盟的优雅呈现，用一场线下品酒会连接同频的人。</p>
+          <div class="split-card-quote">
+            “好酒需要分享，而好的事业，往往也是从一次举杯开始。”
+          </div>
+          <div class="split-card-actions">
+            <span class="split-card-btn">
+              查看详情
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+            <span class="split-card-link">生活方式 · 创业联盟</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="section section-about" id="about">
+    <div class="section-content">
+      <div class="section-header fade-in">
+        <div class="section-label">About Me</div>
+        <h2 class="section-title">关于我</h2>
+        <p class="section-desc">从技术到商业，一路探索的足迹。</p>
+      </div>
+      <a class="split-card single-card fade-in stagger-1" href="关于我_HTML/index.html" target="_blank">
+        <div class="split-card-image">
+          <img src="images/about-me.png" alt="关于我" loading="lazy">
+        </div>
+        <div class="split-card-body">
+          <div class="split-card-meta">个人故事</div>
+          <h3 class="split-card-title">从技术到商业</h3>
+          <p class="split-card-text">一个工科生十年职业探索：从土木、煤矿、材料、储能到 AI 与商业，最终找到连接资源、帮助他人的长期事业。</p>
+          <div class="split-card-quote">
+            “能不能成，完全靠自己度过低谷期。只有在路上的我，才是真我。”
+          </div>
+          <div class="split-card-actions">
+            <span class="split-card-btn">
+              查看详情
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+            <span class="split-card-link">创业历程 · 成长笔记</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-brand">星辰 <span>Star Sky</span></div>
+    <div class="contact">
+      <span class="contact-label">联系方式</span>
+      <span class="contact-value">vx：-0xStarsAI</span>
+    </div>
+    <p class="footer-copy">在路上，遇见更好的自己。</p>
+  </footer>
+
+  <script>
+    // Nav visibility on scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 80) {
+        nav.classList.add('visible');
+      } else {
+        nav.classList.remove('visible');
+      }
+    });
+
+    // Fade in animations with IntersectionObserver
+    const fadeElements = document.querySelectorAll('.fade-in');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -60px 0px'
+    });
+
+    fadeElements.forEach(el => observer.observe(el));
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

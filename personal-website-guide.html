@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="用 AI + GitHub + Netlify，打造属于你的数字名片。11 步图文教程，从零开始部署个人网页。">
+  <title>用 AI + GitHub + Netlify，打造属于你的数字名片</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --accent: #06b6d4;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.08);
+      --radius: 16px;
+      --max-width: 880px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      line-height: 1.75;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(37, 99, 235, 0.12);
+      z-index: 1000;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 0%;
+      transition: width 0.1s ease-out;
+    }
+
+    .hero {
+      position: relative;
+      padding: 120px 24px 100px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0ea5e9 100%);
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 80% 80%, rgba(6,182,212,0.15) 0%, transparent 40%);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      backdrop-filter: blur(8px);
+    }
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: clamp(18px, 2.5vw, 22px);
+      color: rgba(255,255,255,0.85);
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 64px 24px 120px;
+    }
+
+    section {
+      margin-bottom: 64px;
+    }
+
+    .section-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title::before {
+      content: "";
+      width: 5px;
+      height: 28px;
+      background: linear-gradient(180deg, var(--primary), var(--accent));
+      border-radius: 3px;
+    }
+
+    .intro-text {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.8;
+    }
+
+    .value-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    .value-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .value-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    .value-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(6,182,212,0.1));
+    }
+    .value-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .value-card p {
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    .prep-box {
+      background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(6,182,212,0.05));
+      border: 1px solid rgba(37,99,235,0.12);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .prep-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .prep-box h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .prep-box p {
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 36px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      scroll-margin-top: 32px;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .step-number {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .step-text {
+      color: var(--text-secondary);
+      font-size: 17px;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .step-text a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      border-bottom: 1px solid rgba(37,99,235,0.2);
+      transition: border-color 0.2s;
+    }
+    .step-text a:hover {
+      border-bottom-color: var(--primary);
+    }
+    .step-figure {
+      margin: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+    }
+    .step-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      cursor: zoom-in;
+      transition: transform 0.3s ease;
+    }
+    .step-image:hover {
+      transform: scale(1.01);
+    }
+    figcaption {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      background: #f8fafc;
+    }
+
+    .conclusion {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 48px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+    .conclusion h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .conclusion p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.85);
+      max-width: 600px;
+      margin: 0 auto 16px;
+      line-height: 1.8;
+    }
+
+    .back-to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 999;
+    }
+    .back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .back-to-top:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 2000;
+      padding: 24px;
+    }
+    .lightbox.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .lightbox img {
+      max-width: 100%;
+      max-height: 90vh;
+      border-radius: 8px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+    .lightbox.active img {
+      transform: scale(1);
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 640px) {
+      .hero {
+        padding: 80px 20px 72px;
+      }
+      main {
+        padding: 40px 16px 80px;
+      }
+      .value-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .value-card, .step-card, .prep-box, .conclusion {
+        padding: 24px;
+      }
+      .step-header {
+        gap: 12px;
+      }
+      .step-title {
+        font-size: 18px;
+      }
+      .prep-box {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-container" aria-hidden="true">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">✨ 11 步图文教程</div>
+      <h1>用 AI + GitHub + Netlify，<br>打造属于你的数字名片</h1>
+      <p>在这个时代，你的个人网页就是你的数字名片。无需编程基础，跟着步骤操作，即可拥有完全属于自己的独立网站。</p>
+    </div>
+  </header>
+
+  <main>
+    <section id="value">
+      <h2 class="section-title">为什么需要个人网页？</h2>
+      <p class="intro-text">个人网页的价值，不只是"有一个网站"这么简单。它是你在数字世界里的长期资产，也是展示专业形象的最佳方式。</p>
+      <div class="value-grid">
+        <div class="value-card">
+          <div class="value-icon">🛡️</div>
+          <h3>长期资产</h3>
+          <p>社交账号可以被封、平台可以倒闭、算法可以让你的内容消失。但一个属于你的独立网页，永远在那里，不依赖任何平台的规则。</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">🚀</div>
+          <h3>影响力放大器</h3>
+          <p>无论你是自由职业者、创业者、内容创作者，还是正在寻找新机会的职场人，一个专业的个人网页，能让你在第一印象上就和别人拉开距离。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="preparation">
+      <div class="prep-box">
+        <div class="prep-icon">📝</div>
+        <div>
+          <h3>开始之前</h3>
+          <p>下面从简单入手，制作自己特有风格的网页。你需要准备：一个能制作网页的 AI（如 Kimi）、一个 GitHub 账号、一个 Netlify 账号。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="steps">
+      <h2 class="section-title">11 步搭建个人网页</h2>
+      
+  <article class="step-card" id="step-1">
+    <div class="step-header">
+      <span class="step-number">01</span>
+      <h3 class="step-title">收集灵感，让 AI 生成网页</h3>
+    </div>
+    <p class="step-text">自己平时留意到好看的网页，收集起来之后，找到最好的网页，提交给 Kimi 的 Agent 集群，让它模仿生成类似风格的网页；然后将自己已写好的文章上传给 AI 排版，调试生成满意的风格网页。</p>
+    <figure class="step-figure">
+      <img src="images/step-01.png" alt="步骤 1：收集灵感，让 AI 生成网页" class="step-image" loading="lazy">
+      <figcaption>步骤 1 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-2">
+    <div class="step-header">
+      <span class="step-number">02</span>
+      <h3 class="step-title">生成 GitHub 可读取的文件夹</h3>
+    </div>
+    <p class="step-text">网页完成之后，在输入框让 Kimi 生成能让 GitHub 直接访问的文件夹，用于后面上传 GitHub 使用，能直接读取网页的文件格式。</p>
+    <figure class="step-figure">
+      <img src="images/step-02.png" alt="步骤 2：生成 GitHub 可读取的文件夹" class="step-image" loading="lazy">
+      <figcaption>步骤 2 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-3">
+    <div class="step-header">
+      <span class="step-number">03</span>
+      <h3 class="step-title">创建 GitHub 仓库</h3>
+    </div>
+    <p class="step-text">下一步就是上传文件夹。如果还没有 GitHub 账号，前往 github.com 注册即可，点击右上角创建 New repository。</p>
+    <figure class="step-figure">
+      <img src="images/step-03.png" alt="步骤 3：创建 GitHub 仓库" class="step-image" loading="lazy">
+      <figcaption>步骤 3 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-4">
+    <div class="step-header">
+      <span class="step-number">04</span>
+      <h3 class="step-title">设置仓库名称</h3>
+    </div>
+    <p class="step-text">输入 Repository name 后，点击 Create repository 完成设置，进入仓库页面。</p>
+    <figure class="step-figure">
+      <img src="images/step-04.png" alt="步骤 4：设置仓库名称" class="step-image" loading="lazy">
+      <figcaption>步骤 4 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-5">
+    <div class="step-header">
+      <span class="step-number">05</span>
+      <h3 class="step-title">上传 AI 生成的文件</h3>
+    </div>
+    <p class="step-text">点击 uploading an existing file，上传 AI 刚生成的 GitHub 文件。</p>
+    <figure class="step-figure">
+      <img src="images/step-05.png" alt="步骤 5：上传 AI 生成的文件" class="step-image" loading="lazy">
+      <figcaption>步骤 5 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-6">
+    <div class="step-header">
+      <span class="step-number">06</span>
+      <h3 class="step-title">拖拽上传并提交</h3>
+    </div>
+    <p class="step-text">直接拖动文件夹里的文件到空白处上传，不用点击 choose your files 上传；点击 Commit changes 完成项目创建。</p>
+    <figure class="step-figure">
+      <img src="images/step-06.png" alt="步骤 6：拖拽上传并提交" class="step-image" loading="lazy">
+      <figcaption>步骤 6 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-7">
+    <div class="step-header">
+      <span class="step-number">07</span>
+      <h3 class="step-title">确认网站文件</h3>
+    </div>
+    <p class="step-text">如上图，就是能直接读取的网站文件。</p>
+    <figure class="step-figure">
+      <img src="images/step-07.png" alt="步骤 7：确认网站文件" class="step-image" loading="lazy">
+      <figcaption>步骤 7 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-8">
+    <div class="step-header">
+      <span class="step-number">08</span>
+      <h3 class="step-title">登录 Netlify</h3>
+    </div>
+    <p class="step-text">访问 <a href="https://www.netlify.com/" target="_blank" rel="noopener">https://www.netlify.com/</a> 网页托管平台，用 GitHub 账号注册登录。</p>
+    <figure class="step-figure">
+      <img src="images/step-08.png" alt="步骤 8：登录 Netlify" class="step-image" loading="lazy">
+      <figcaption>步骤 8 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-9">
+    <div class="step-header">
+      <span class="step-number">09</span>
+      <h3 class="step-title">用 GitHub 授权 Netlify</h3>
+    </div>
+    <p class="step-text">GitHub 授权 Netlify 注册登录。</p>
+    <figure class="step-figure">
+      <img src="images/step-09.png" alt="步骤 9：用 GitHub 授权 Netlify" class="step-image" loading="lazy">
+      <figcaption>步骤 9 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-10">
+    <div class="step-header">
+      <span class="step-number">10</span>
+      <h3 class="step-title">导入 GitHub 仓库</h3>
+    </div>
+    <p class="step-text">注册完成之后导入刚创建的 GitHub 仓库。</p>
+    <figure class="step-figure">
+      <img src="images/step-10.png" alt="步骤 10：导入 GitHub 仓库" class="step-image" loading="lazy">
+      <figcaption>步骤 10 示意图</figcaption>
+    </figure>
+  </article>
+
+
+  <article class="step-card" id="step-11">
+    <div class="step-header">
+      <span class="step-number">11</span>
+      <h3 class="step-title">自动部署上线</h3>
+    </div>
+    <p class="step-text">Netlify 自动识别账号内的仓库，点击上传，等待片刻自动部署完成。</p>
+    <figure class="step-figure">
+      <img src="images/step-11.png" alt="步骤 11：自动部署上线" class="step-image" loading="lazy">
+      <figcaption>步骤 11 示意图</figcaption>
+    </figure>
+  </article>
+
+    </section>
+
+    <section id="conclusion">
+      <div class="conclusion">
+        <h2>🎉 你拥有了自己的数字名片</h2>
+        <p>点击网页即可正常访问，同时可以根据自己需求修改网页的域名。</p>
+        <p>自此我们就有了完全属于自己的个人网页了，不受任何社交平台的限制，是个人的特有资产。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>本教程由 Word 文档优化生成 · 用 AI + GitHub + Netlify 打造属于你的数字名片</p>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="返回顶部">↑</button>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" aria-label="关闭">×</button>
+    <img src="" alt="放大查看" id="lightboxImg">
+  </div>
+
+  <script>
+    const progressBar = document.getElementById('progressBar');
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progressBar.style.width = progress + '%';
+    });
+
+    const backToTop = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        backToTop.classList.add('visible');
+      } else {
+        backToTop.classList.remove('visible');
+      }
+    });
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.querySelector('.lightbox-close');
+
+    document.querySelectorAll('.step-image').forEach(img => {
+      img.addEventListener('click', () => {
+        lightboxImg.src = img.src;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+</body>
+</html>
