@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关于我 | 从技术到商业</title>
+  <meta name="description" content="一个工科生十年职业探索：从土木、煤矿、材料、储能到 AI 与商业，最终找到连接资源、帮助他人的长期事业。">
+  <style>
+    :root {
+      --bg: #FDFBF7;
+      --surface: #FFFFFF;
+      --text: #3D3D3D;
+      --text-light: #6B6B6B;
+      --accent: #C4704B;
+      --accent-light: #F3E7DD;
+      --border: #E8E2DA;
+      --shadow: rgba(0, 0, 0, 0.06);
+      --radius: 18px;
+      --max-width: 760px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.9;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Reading progress bar */
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--accent);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.1s;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      min-height: 72vh;
+      display: flex;
+      align-items: flex-end;
+      padding: 80px 24px;
+      background: linear-gradient(135deg, #5A4A42 0%, #3D3530 100%);
+      color: #fff;
+    }
+
+    .hero-photo {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 42%;
+      background: url('images/hero.png') center/cover no-repeat;
+      opacity: 0.35;
+      mask-image: linear-gradient(to right, transparent, black 40%);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 40%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      opacity: 0.9;
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      line-height: 1.25;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      max-width: 620px;
+      color: #FDF8F2;
+      line-height: 1.8;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.75;
+      font-size: 13px;
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-hint span {
+      width: 22px;
+      height: 36px;
+      border: 2px solid rgba(255,255,255,0.7);
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .scroll-hint span::after {
+      content: '';
+      position: absolute;
+      top: 7px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 6px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 2px;
+      animation: scrollDot 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    @keyframes scrollDot {
+      0% { opacity: 1; top: 7px; }
+      100% { opacity: 0; top: 18px; }
+    }
+
+    /* Main article */
+    article {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    section {
+      margin-bottom: 72px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 22px;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 4px;
+      margin-right: 12px;
+      vertical-align: middle;
+    }
+
+    p {
+      margin-bottom: 1.3em;
+      text-align: justify;
+      color: var(--text);
+    }
+
+    .lead {
+      font-size: 1.15rem;
+      color: var(--text-light);
+      line-height: 1.9;
+      margin-bottom: 32px;
+    }
+
+    /* Images */
+    figure {
+      margin: 28px 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: 0 6px 24px var(--shadow);
+    }
+
+    figure img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+
+    figure:hover img {
+      transform: scale(1.02);
+    }
+
+    figcaption {
+      padding: 12px 18px;
+      font-size: 0.85rem;
+      color: var(--text-light);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    /* Two-column image grid */
+    .figure-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin: 28px 0;
+      align-items: stretch;
+    }
+
+    .figure-grid figure {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .figure-grid .img-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F5F2ED;
+      padding: 16px;
+      min-height: 280px;
+    }
+
+    .figure-grid .img-wrap img {
+      max-width: 100%;
+      max-height: 320px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.6s ease;
+    }
+
+    .figure-grid figure:hover .img-wrap img {
+      transform: scale(1.02);
+    }
+
+    .figure-grid figcaption {
+      text-align: center;
+      padding: 14px 16px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 640px) {
+      .figure-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .figure-grid .img-wrap {
+        min-height: 220px;
+      }
+
+      .figure-grid .img-wrap img {
+        max-height: 260px;
+      }
+    }
+
+    /* Quote blocks */
+    blockquote {
+      margin: 36px 0;
+      padding: 28px 32px;
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 1.1rem;
+      color: #5A3D2E;
+      line-height: 1.85;
+      position: relative;
+    }
+
+    blockquote::before {
+      content: '“';
+      font-size: 3.5rem;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.25;
+      position: absolute;
+      top: 10px;
+      left: 18px;
+    }
+
+    blockquote p {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      text-align: left;
+    }
+
+    /* Closing section */
+    .closing {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 48px 36px;
+      box-shadow: 0 8px 40px var(--shadow);
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .closing h2 {
+      margin-bottom: 20px;
+    }
+
+    .closing h2::before {
+      display: none;
+    }
+
+    .closing p {
+      text-align: center;
+      max-width: 560px;
+      margin: 0 auto 24px;
+    }
+
+    .cta {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 14px 36px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(196, 112, 75, 0.3);
+    }
+
+    .cta:hover {
+      background: #A85C3B;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(196, 112, 75, 0.35);
+    }
+
+    /* Hero photo at the end */
+    .hero-photo-end {
+      margin: 32px auto 12px;
+      max-width: 480px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: 0 8px 30px var(--shadow);
+    }
+
+    .hero-photo-end img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .hero-photo-end figcaption {
+      text-align: center;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+      text-align: center;
+      padding: 40px 24px 60px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      body {
+        font-size: 16px;
+      }
+
+      .hero {
+        min-height: 62vh;
+        padding: 60px 20px;
+      }
+
+      .hero-photo {
+        width: 100%;
+        opacity: 0.2;
+        mask-image: linear-gradient(to top, transparent, black 50%);
+        -webkit-mask-image: linear-gradient(to top, transparent, black 50%);
+      }
+
+      article {
+        padding: 52px 20px 70px;
+      }
+
+      section {
+        margin-bottom: 56px;
+      }
+
+      h2 {
+        font-size: 1.45rem;
+      }
+
+      blockquote {
+        padding: 22px 24px;
+        font-size: 1rem;
+      }
+
+      .closing {
+        padding: 36px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+
+  <header class="hero">
+    <div class="hero-photo"></div>
+    <div class="hero-content">
+      <div class="hero-label">About Me</div>
+      <h1>从技术到商业：<br>一个工科生走了十年才想明白的事</h1>
+      <p>从煤矿 400 米深处，到材料实验室，再到储能行业与 AI 浪潮——这是一条不断转弯的路，也是一次次排除"不想成为的样子"的过程。</p>
+    </div>
+    <div class="scroll-hint">
+      <span></span>
+      <span style="border:none;width:auto;">向下滚动</span>
+    </div>
+  </header>
+
+  <article>
+    <section class="visible">
+      <p class="lead">十年前，我和很多人一样，冲着"热门"选择了土木工程专业。那时的土木，火得不亚于今天的 AI。谁能想到，行业变化如此之快，曾经的热门变成了许多人不得不转行的困境。我也曾是那段故事里的一员。</p>
+    </section>
+
+    <section>
+      <h2>煤矿 400 米下：实习与安全员的日子</h2>
+      <p>真正让我开始怀疑这条路的，是一次煤矿实习。我坐着业内叫"猴车"的简易装置，沿着近 45° 的斜坡，下到 400 米深的矿井。</p>
+      <p>人悬空在黑暗中，只有扶手、踏板和座椅。第一次下降约 200 米时，那种要坠入深渊的感觉至今难忘。</p>
+      <p>矿道里没有看到大型风机，空气却流通得惊人，凉风吹过皮肤表面。矿车沿着轨道从左侧上来，空车从右侧下去，中间留给皮带运输机运送煤炭。因为手机可能引发瓦斯爆炸，只能留在井上，所以井下的真实模样，只能刻在脑海里。</p>
+
+      <div class="figure-grid">
+        <figure>
+          <div class="img-wrap"><img src="images/mine_tunnel.png" alt="矿井深处的轨道与运输线" loading="lazy"></div>
+          <figcaption>矿井深处的轨道与运输线</figcaption>
+        </figure>
+        <figure>
+          <div class="img-wrap"><img src="images/mine_workers.png" alt="从矿井出来的矿工" loading="lazy"></div>
+          <figcaption>从矿井出来，才真正体会“平安”二字的分量</figcaption>
+        </figure>
+      </div>
+
+      <p>走过漫长的运输线，通道只够单向通行。每隔一段，矿道两旁就有专门挖出的避险洞，用钢筋、铁网和水泥加固，用于紧急情况。地底还挖了许多水箱，收集泥土中渗透出来的水。听着滴水声，像面对深不见底的深渊。</p>
+
+      <p>煤矿、建筑都属于高风险行业。我做过安全员，名义上负责识别风险，实际上却常常没有实权，更多时候只是事故后的责任人。打交道最多的是施工人员，人员管理已是难题，晚上的酒局更让人疲惫。</p>
+
+      <blockquote>
+        <p>那时候我就知道，这不是我想干一辈子的事。</p>
+      </blockquote>
+    </section>
+
+    <section>
+      <h2>考研：换一条赛道</h2>
+      <p>于是我选择考研，换一个方向。入学时我并不知道会去做材料相关课题——研究生阶段，导师的研究方向往往比专业名称更重要。</p>
+      <p>材料方向似乎比土木好一些，但深入后才发现，传统材料领域竞争激烈，我们这类跨专业背景并不占优势。于是我把重心放在材料仿真上，走学科交叉路线，反而更容易出成果。</p>
+    </section>
+
+    <section>
+      <h2>从实验台到电脑屏幕</h2>
+      <p>起初研究的是导热吸波材料，常用于手机和电池，解决散热和电磁波吸收问题。对我来说，这是一个全新的课题，也很有价值。</p>
+      <p>但越深入越发现，我的兴趣并不在材料本身。实验室里瓶瓶罐罐、有毒溶剂，日复一日。大多数材料专业的就业方向，也集中在工艺或质量岗位。我大概率不会一辈子和材料仪器打交道。</p>
+
+      <div class="figure-grid">
+        <figure>
+          <div class="img-wrap"><img src="images/lab_wide.png" alt="材料实验室内部" loading="lazy"></div>
+          <figcaption>实验室的工作环境，比矿井下好了不止几百倍</figcaption>
+        </figure>
+        <figure>
+          <div class="img-wrap"><img src="images/lab_work.png" alt="在实验室工作的场景" loading="lazy"></div>
+          <figcaption>从动手做实验，到用仿真寻找更优路径</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h2>储能行业：风口上的两年</h2>
+      <p>毕业时就业市场已经很难。我投了将近 100 份简历，最终进入了一个之前几乎没听说过的行业——储能。</p>
+      <p>这份工作和我研究生期间的散热研究很吻合。储能属于新能源，应用场景很广：水库发电需要储存，工业园区需要备用电源，荒漠里的太阳能和风能需要存储，就连如今火爆的 AI 数据中心，也需要毫秒级切换电源来保障训练不中断。</p>
+      <p>行业高速发展，各大厂商都缺人，找工作不算太难。</p>
+
+      <p>但工作两年后，我逐渐看清了其中的局限：岗位内容不断重复，个人只是公司闭环里的一小块切片；前端需求从哪里来，很少能真正看见。时间流逝得飞快，一年好像只过了一个月。</p>
+
+      <blockquote>
+        <p>这也让我意识到，职场里同样存在巨大的局限性：岗位替代性高、35 岁危机、缺少自由度。是时候再次做出改变。</p>
+      </blockquote>
+
+      <div class="figure-grid">
+        <figure>
+          <div class="img-wrap"><img src="images/transformer.png" alt="供应商测试场地的变压器" loading="lazy"></div>
+          <figcaption>供应商测试场地的变压器</figcaption>
+        </figure>
+        <figure>
+          <div class="img-wrap"><img src="images/energy_storage.png" alt="户外储能集装箱" loading="lazy"></div>
+          <figcaption>户外储能集装箱，新能源基础设施</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h2>AI 浪潮：技术不等于生意</h2>
+      <p>AI 火爆的时候，我和很多人一样，一头扎进去，以为学完 AI 就能赚大钱。</p>
+      <p>但真正学完后才发现：AI 只是一个放大器。如果本身没有能赚钱的业务，再强的工具也放不大零。</p>
+      <p>一味追求技术，又一次陷入了和工作相似的循环——学了很多，却无法落地变现。我离商业越来越远，根本不了解市场真正的需求、如何找到顾客、如何做流量。这些都不是技术能直接带来的。</p>
+
+      <figure>
+        <img src="images/ai_screenshots.png" alt="社交媒体上关于 AI 赚钱项目的讨论" loading="lazy">
+        <figcaption>社交媒体上满屏"AI 赚钱项目"，但真正跑通的人寥寥无几。</figcaption>
+      </figure>
+
+      <p>那些看起来"我上我也行"的赚钱项目，背后往往有复杂的流程。对没有商业经验的人来说，并不轻松。商业需要花更多时间去琢磨，只靠技术远远不够。</p>
+    </section>
+
+    <section>
+      <h2>现在，我想做的事</h2>
+      <p>过去两年，我参加了近 100 场线下活动，认识了各行各业的人。对社会、市场，也对自己，有了更深的理解。</p>
+      <p>市场需要什么，自己能做什么，渐渐变得清晰。</p>
+
+      <blockquote>
+        <p>我终于找到了一件长期值得去做的事：把我和大家的资源链接起来，真正帮助有需求的人。在帮助别人的过程中，也实现自己的价值。</p>
+      </blockquote>
+
+      <p>这让我觉得有意义，也充满正能量。</p>
+    </section>
+
+    <section class="closing">
+      <h2>一起遇见更好的自己</h2>
+      <p>从土木到煤矿，从材料到储能，从 AI 到商业，这十年走了很多弯路。但回头再看，每一次转弯都不是浪费，而是在帮我排除"不想成为的样子"。</p>
+      <p>个人成长的路上，我会继续学习、复盘、总结。也期待能和你一起，遇见更好的自己。</p>
+      <figure class="hero-photo-end">
+        <img src="images/hero.png" alt="现在的我" loading="lazy">
+        <figcaption>现在的我，继续在路上</figcaption>
+      </figure>
+
+      <a href="#" class="cta" onclick="event.preventDefault(); window.scrollTo({top: 0, behavior: 'smooth'});">回到顶部</a>
+    </section>
+  </article>
+
+  <footer>
+    <p>© 2026 · 关于我</p>
+  </footer>
+
+  <script>
+    // Reading progress bar
+    window.addEventListener('scroll', () => {
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+      document.getElementById('progress').style.width = progress + '%';
+    });
+
+    // Scroll reveal animations
+    const sections = document.querySelectorAll('section:not(.visible)');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    sections.forEach(section => observer.observe(section));
+  </script>
+</body>
+</html>
